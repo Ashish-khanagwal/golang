@@ -87,3 +87,6 @@ func main() {
 	// The above for loop is an infinite loop and it keeps executing until we've not exit it.
 
 }
+
+// ########### FUNCTIONS ###########
+// We can define more functions just by using "func" keyword. Just we have to call them in our main function.
