@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	// "strings"
+	"time"
 )
 
 // These are known as package variables, it means we just have to declare them once and they'll be availabel to all fiunctions
@@ -14,7 +13,15 @@ var conferenceName = "Go Conference"
 var remainingTickets uint = 50
 
 // var bookings = []string{}
-var bookings = make([]map[string]string, 0) // This will create a list of maps.
+// var bookings = make([]map[string]string, 0) // This will create a list of maps.
+var bookings = make([]UserData, 0)
+
+type UserData struct {
+	firstName string
+	lastName  string
+	email     string
+	tickets   uint
+}
 
 func main() {
 
@@ -43,6 +50,9 @@ func main() {
 		if isValidName && isValidEmail && isValidTicketNumber {
 			// Booking tickets
 			bookTicket(userFirstName, userLastName, userEmail, userTickets)
+
+			go sendTicket(userTickets, userFirstName, userLastName, userEmail)
+			// "go" starts a new goroutine and create threads for concurrency
 
 			// Getting first names using funciton declared outside the main func
 			firstNames := getFirstNames()
@@ -79,8 +89,10 @@ func getFirstNames() []string {
 	// for index, chr := range str {}
 	for _, booking := range bookings {
 		// var firstName = strings.Fields(booking) // strings.Fields() <- This basically splits the sring.
-		firstNames = append(firstNames, booking["firstName"])
-		// booking["firstNames"] way to extract firstname from map's key-value pair
+		// firstNames = append(firstNames, booking["firstName"])
+		// booking["firstName"] way to extract firstname from map's key-value pair
+		firstNames = append(firstNames, booking.firstName)
+		// booking.firstName way to extract firstname from Struct's key-value pair
 	}
 	return firstNames
 }
@@ -113,11 +125,20 @@ func bookTicket(userFirstName string, userLastName string, userEmail string, use
 	// bookings[0] = userFirstName + " " + userLastName ### This is not the right way to do.
 
 	// Creates a map for a user
-	var userData = make(map[string]string) // This will create a empty map.
-	userData["firstName"] = userFirstName
-	userData["lastName"] = userLastName
-	userData["email"] = userEmail
-	userData["tickets"] = strconv.FormatUint(uint64(userTickets), 10) // this is used to convert uint to string
+	// var userData = make(map[string]string) // This will create a empty map.
+	// // Map can save key-values of one data type at a time.
+	// userData["firstName"] = userFirstName
+	// userData["lastName"] = userLastName
+	// userData["email"] = userEmail
+	// userData["tickets"] = strconv.FormatUint(uint64(userTickets), 10) // this is used to convert uint to string
+
+	// We are using struct instead of using map, because "Struct" holds mulptiple data-types
+	var userData = UserData{
+		firstName: userFirstName,
+		lastName:  userLastName,
+		email:     userEmail,
+		tickets:   userTickets,
+	}
 
 	// bookings = append(bookings, userFirstName+" "+userLastName) // "Append" adds the elements at the end of the slice
 	bookings = append(bookings, userData)
@@ -125,4 +146,13 @@ func bookTicket(userFirstName string, userLastName string, userEmail string, use
 
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will recieve an confirmation email at %v\n", userFirstName, userLastName, userTickets, userEmail)
 	fmt.Printf("%v tickets are remaining for the %v, Share to your friends\n", remainingTickets, conferenceName)
+}
+
+func sendTicket(userTickets uint, userFirstName string, userLastName string, userEmail string) {
+	time.Sleep(10 * time.Second)
+	// Sleep function stops the current execution for the defined duration.
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, userFirstName, userLastName)
+	fmt.Println("####################")
+	fmt.Printf("Sending tickets:\n %v \nto email address %v\n", ticket, userEmail)
+	fmt.Println("####################")
 }
